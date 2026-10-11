@@ -160,5 +160,4 @@ d'initialisation dans un `emptyDir`, monté `readOnly: true` dans le conteneur p
 
 - Module précédent : **Marquer les rendus générés par IA** — dépôt
   [`clic-par-clic-studio3d-04-marquage`](https://github.com/guilhem-/clic-par-clic-studio3d-04-marquage).
-- À suivre : la série **Intégrations IA**, qui relie ce studio à Open WebUI de quatre façons
-  différentes.
+- Module suivant : **Télécharger la scène Blender** (à venir).

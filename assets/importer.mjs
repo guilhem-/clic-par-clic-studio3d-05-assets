@@ -324,6 +324,7 @@ export async function construire({ ajouter = null, deployer: monter = false, imp
     if (resume && inchanges) dire(`  ${inchanges} assets inchangés : en cache, MD5 vérifiée, déjà préparés`);
     for (const [nom, fiche, genre, source] of aPreparer) {
       dire(`  ${nom} : ${source.etat === 'téléchargé' ? 'téléchargée' : 'en cache'}, MD5 vérifiée (${mo(source.taille)})`);
+      dire(`  ${nom} : préparation dans Blender…`);
       preparees[nom] = preparer(nom, fiche, genre, source);
       dire(`  ${nom} : préparée dans Blender, ${mesures(preparees[nom])}`);
     }
