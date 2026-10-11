@@ -160,4 +160,5 @@ d'initialisation dans un `emptyDir`, monté `readOnly: true` dans le conteneur p
 
 - Module précédent : **Marquer les rendus générés par IA** — dépôt
   [`clic-par-clic-studio3d-04-marquage`](https://github.com/guilhem-/clic-par-clic-studio3d-04-marquage).
-- Module suivant : **Télécharger la scène Blender** (à venir).
+- Module suivant : **Télécharger la scène Blender depuis le stockage d'une autre équipe** — dépôt
+  [`clic-par-clic-studio3d-06-stockage-s3`](https://github.com/guilhem-/clic-par-clic-studio3d-06-stockage-s3).
