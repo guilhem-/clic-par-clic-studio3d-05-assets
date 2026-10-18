@@ -1,246 +1,252 @@
 {
   "version": 1,
   "source": "Poly Haven, https://polyhaven.com (CC0)",
-  "catalogues": {
-    "mobilier": {
-      "FR": "Mobilier",
+  "catalogs": {
+    "furniture": {
       "EN": "Furniture",
+      "FR": "Mobilier",
       "DE": "Möbel"
     },
-    "eclairage": {
-      "FR": "Éclairage de bureau",
+    "lighting": {
       "EN": "Desk lighting",
+      "FR": "Éclairage de bureau",
       "DE": "Schreibtischbeleuchtung"
     },
     "decoration": {
-      "FR": "Décoration",
       "EN": "Decoration",
+      "FR": "Décoration",
       "DE": "Dekoration"
     },
-    "environnements": {
-      "FR": "Environnements HDRI",
+    "environments": {
       "EN": "HDRI environments",
+      "FR": "Environnements HDRI",
       "DE": "HDRI-Umgebungen"
     }
   },
-  "modeles": {
-    "chaise_bois": {
+  "models": {
+    "wooden_chair": {
       "polyhaven": "painted_wooden_chair_01",
-      "catalogue": "mobilier",
-      "nom": {
-        "FR": "Chaise en bois",
+      "catalog": "furniture",
+      "name": {
         "EN": "Wooden chair",
+        "FR": "Chaise en bois",
         "DE": "Holzstuhl"
       },
       "description": {
-        "FR": "Chaise de cuisine en bois peint en blanc, patinée, dossier ajouré.",
         "EN": "Distressed white painted wooden kitchen chair, slatted seat.",
+        "FR": "Chaise de cuisine en bois peint en blanc, patinée, dossier ajouré.",
         "DE": "Weiß lackierter Küchenstuhl aus Holz, mit Gebrauchsspuren."
       },
-      "etiquettes": [
-        "chaise",
+      "tags": [
         "chair",
+        "chaise",
         "stuhl",
-        "bois",
         "wood",
+        "bois",
         "holz",
+        "furniture",
         "mobilier",
+        "seat",
         "siège"
       ]
     },
-    "fauteuil": {
+    "armchair": {
       "polyhaven": "modern_arm_chair_01",
-      "catalogue": "mobilier",
-      "nom": {
-        "FR": "Fauteuil moderne",
+      "catalog": "furniture",
+      "name": {
         "EN": "Modern armchair",
+        "FR": "Fauteuil moderne",
         "DE": "Moderner Sessel"
       },
       "description": {
-        "FR": "Fauteuil au cadre en chêne et aux coussins de cuir noir.",
         "EN": "Oak-framed armchair with black leather cushions.",
+        "FR": "Fauteuil au cadre en chêne et aux coussins de cuir noir.",
         "DE": "Sessel mit Eichenrahmen und schwarzen Lederkissen."
       },
-      "etiquettes": [
-        "fauteuil",
+      "tags": [
         "armchair",
+        "fauteuil",
         "sessel",
-        "chaise",
         "chair",
-        "cuir",
+        "chaise",
         "leather",
+        "cuir",
+        "furniture",
         "mobilier",
+        "seat",
         "siège"
       ]
     },
-    "bureau_metal": {
+    "metal_desk": {
       "polyhaven": "metal_office_desk",
-      "catalogue": "mobilier",
-      "nom": {
-        "FR": "Bureau métallique",
+      "catalog": "furniture",
+      "name": {
         "EN": "Metal office desk",
+        "FR": "Bureau métallique",
         "DE": "Metallschreibtisch"
       },
       "description": {
-        "FR": "Bureau de travail en métal gris, deux caissons à tiroirs ; plateau à 0,79 m.",
         "EN": "Grey metal office desk with two drawer pedestals; top at 0.79 m.",
+        "FR": "Bureau de travail en métal gris, deux caissons à tiroirs ; plateau à 0,79 m.",
         "DE": "Grauer Metallschreibtisch mit zwei Schubladencontainern; Platte auf 0,79 m."
       },
-      "etiquettes": [
-        "bureau",
+      "tags": [
         "desk",
+        "bureau",
         "schreibtisch",
         "table",
         "tisch",
-        "métal",
         "metal",
+        "métal",
+        "furniture",
         "mobilier"
       ]
     },
-    "lampe_bureau": {
+    "desk_lamp": {
       "polyhaven": "desk_lamp_arm_01",
-      "catalogue": "eclairage",
-      "nom": {
-        "FR": "Lampe de bureau",
+      "catalog": "lighting",
+      "name": {
         "EN": "Desk lamp",
+        "FR": "Lampe de bureau",
         "DE": "Schreibtischlampe"
       },
       "description": {
-        "FR": "Lampe d'atelier à bras articulé, style industriel.",
         "EN": "Industrial articulated-arm workshop lamp.",
+        "FR": "Lampe d'atelier à bras articulé, style industriel.",
         "DE": "Industrielle Werkstattlampe mit Gelenkarm."
       },
-      "etiquettes": [
-        "lampe",
+      "tags": [
         "lamp",
-        "lampe de bureau",
+        "lampe",
         "leuchte",
-        "éclairage",
+        "desk lamp",
+        "lampe de bureau",
         "lighting",
-        "bureau",
-        "desk"
+        "éclairage",
+        "desk",
+        "bureau"
       ]
     },
-    "vase_ceramique": {
+    "ceramic_vase": {
       "polyhaven": "ceramic_vase_01",
-      "catalogue": "decoration",
-      "nom": {
-        "FR": "Vase en céramique",
+      "catalog": "decoration",
+      "name": {
         "EN": "Ceramic vase",
+        "FR": "Vase en céramique",
         "DE": "Keramikvase"
       },
       "description": {
-        "FR": "Grand vase blanc brillant au col cannelé.",
         "EN": "Tall glossy white vase with a fluted rim.",
+        "FR": "Grand vase blanc brillant au col cannelé.",
         "DE": "Hohe, glänzend weiße Vase mit geriffeltem Rand."
       },
-      "etiquettes": [
+      "tags": [
         "vase",
-        "céramique",
         "ceramic",
+        "céramique",
         "keramik",
-        "décoration",
         "decoration",
+        "décoration",
         "deko"
       ]
     }
   },
-  "environnements": {
-    "studio_doux": {
+  "environments": {
+    "soft_studio": {
       "polyhaven": "studio_small_08",
-      "nom": {
-        "FR": "Studio doux",
+      "name": {
         "EN": "Soft studio",
+        "FR": "Studio doux",
         "DE": "Weiches Studio"
       },
       "description": {
-        "FR": "Petit studio photo, grandes boîtes à lumière, faible contraste.",
         "EN": "Small photo studio, large softboxes, low contrast.",
+        "FR": "Petit studio photo, grandes boîtes à lumière, faible contraste.",
         "DE": "Kleines Fotostudio, große Softboxen, geringer Kontrast."
       },
-      "etiquettes": [
+      "tags": [
         "studio",
-        "doux",
         "soft",
+        "doux",
         "weich",
         "photo",
         "foto",
-        "intérieur",
-        "indoor"
+        "indoor",
+        "intérieur"
       ]
     },
-    "loft_lumineux": {
+    "bright_loft": {
       "polyhaven": "photo_studio_loft_hall",
-      "nom": {
-        "FR": "Loft lumineux",
+      "name": {
         "EN": "Bright loft",
+        "FR": "Loft lumineux",
         "DE": "Helles Loft"
       },
       "description": {
-        "FR": "Grand loft, lumière naturelle d'après-midi : ambiance showroom.",
         "EN": "Large loft, natural afternoon light: showroom mood.",
+        "FR": "Grand loft, lumière naturelle d'après-midi : ambiance showroom.",
         "DE": "Großes Loft, natürliches Nachmittagslicht: Showroom-Stimmung."
       },
-      "etiquettes": [
+      "tags": [
         "loft",
-        "lumineux",
         "bright",
+        "lumineux",
         "hell",
-        "naturel",
         "natural",
+        "naturel",
         "showroom",
-        "jour",
-        "day"
+        "day",
+        "jour"
       ]
     },
-    "salon_bois": {
+    "wooden_lounge": {
       "polyhaven": "wooden_lounge",
-      "nom": {
-        "FR": "Salon boisé",
+      "name": {
         "EN": "Wooden lounge",
+        "FR": "Salon boisé",
         "DE": "Holzlounge"
       },
       "description": {
-        "FR": "Salon chaleureux en bois, lampes allumées, contraste marqué.",
         "EN": "Warm wooden lounge, lamps on, high contrast.",
+        "FR": "Salon chaleureux en bois, lampes allumées, contraste marqué.",
         "DE": "Warme Holzlounge, Lampen an, hoher Kontrast."
       },
-      "etiquettes": [
-        "salon",
+      "tags": [
         "lounge",
-        "bois",
+        "salon",
         "wood",
+        "bois",
         "holz",
-        "chaleureux",
         "warm",
-        "intérieur",
-        "indoor"
+        "chaleureux",
+        "indoor",
+        "intérieur"
       ]
     }
   },
-  "proposes": {
-    "plante_verte": {
+  "proposed": {
+    "potted_plant": {
       "polyhaven": "potted_plant_01",
-      "catalogue": "decoration",
-      "nom": {
-        "FR": "Plante verte",
+      "catalog": "decoration",
+      "name": {
         "EN": "Potted plant",
+        "FR": "Plante verte",
         "DE": "Topfpflanze"
       },
       "description": {
-        "FR": "Plante d'intérieur aux larges feuilles, pot en terre cuite sur pied.",
         "EN": "Leafy houseplant in a terracotta pedestal pot.",
+        "FR": "Plante d'intérieur aux larges feuilles, pot en terre cuite sur pied.",
         "DE": "Zimmerpflanze mit großen Blättern im Terrakotta-Standtopf."
       },
-      "etiquettes": [
-        "plante",
+      "tags": [
         "plant",
+        "plante",
         "pflanze",
-        "verte",
         "green",
+        "verte",
         "grün",
-        "décoration",
         "decoration",
+        "décoration",
         "deko"
       ]
     }

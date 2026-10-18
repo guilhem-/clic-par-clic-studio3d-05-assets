@@ -1,3 +1,3 @@
-# Contexte de construction de l’image d’assets : seulement la bibliothèque assemblée.
+# Build context of the asset image: only the assembled library.
 *
-!bibliotheque
+!library

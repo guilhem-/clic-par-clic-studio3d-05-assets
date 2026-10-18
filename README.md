@@ -1,164 +1,163 @@
-# Une bibliothèque d'assets pour tous les rendus — volume image Kubernetes, MCP et Blender
+# An asset library for every render — Kubernetes image volume, MCP and Blender
 
-Code de la démonstration du module 5 de la série « Clic par clic » **Créer un service d'IA
-compatible agentique : le studio 3D**.
+Code for module 5 of the “Click by Click” series **Building an agent-ready AI service: the 3D studio**
+(also published in French as « Clic par clic » and in German as « Klick für Klick »).
 
-Vidéo : {{video}}
+Video: {{video}}
 
-## But
+## Goal
 
-Jusqu'ici, le modèle de langage construit chaque scène avec des cubes et des cylindres. Ce dépôt
-donne au studio du module 4 une **bibliothèque d'assets commune** — de vrais meubles et de vrais
-éclairages HDRI — partagée par tous les rendus, tous les workers et tous les utilisateurs :
+Until now, the language model has built every scene out of cubes and cylinders. This repository
+gives the module 4 studio a **shared asset library** — real furniture and real HDRI lighting —
+shared by every render, every worker and every user:
 
-- **stockage et distribution** : une **image d'assets** (`FROM scratch`, rien que des fichiers),
-  montée **en lecture seule** sur `/assets` par le **volume `image`** de Kubernetes (bêta activée
-  par défaut depuis Kubernetes 1.35, stable en 1.36), dans le serveur MCP et dans les workers.
-  Chaque nœud la garde en cache : un worker créé par KEDA la trouve à sa naissance, sans
-  téléchargement ni règle réseau à ouvrir ;
-- **format** : des `.blend` normalisés (un Empty racine posé au sol, armatures appliquées, textures
-  à côté, chemins relatifs), marqués comme assets Blender (catalogues de l'Asset Browser) ; des HDRI
-  2k ; des vignettes rendues par Blender ; un `catalogue.json` (noms en trois langues, dimensions
-  en mètres, source, auteurs, licence) ;
-- **découverte** : un outil MCP `lister_assets(recherche, genre)` qui renvoie le nom à écrire dans le
-  code, les dimensions, une vignette en Markdown, un exemple d'appel et la source ;
-- **utilisation** : deux fonctions placées dans l'espace d'exécution du code du modèle,
-  `charger_asset("nom", position=(x, y, z), rotation_z=…)` et `environnement("nom")` : **un nom,
-  jamais un chemin** ; un nom inconnu lève une erreur qui liste les noms valides (le modèle se
-  corrige) ; l'objet est **ajouté** (pas lié) : le modèle peut le déplacer et le recolorer, le
-  fichier d'origine reste intact (montage en lecture seule) ;
-- **versionnement** : la version de la bibliothèque est l'étiquette de l'image
-  (`studio3d-assets:1`, `:2`… ; en production, l'empreinte `@sha256:…`) inscrite dans le manifeste.
-  Ajouter un asset construit une nouvelle image de quelques dizaines de Mo, **sans reconstruire
-  l'image de Blender** ; un pod garde la version montée à sa naissance ;
-- **trace** : chaque rendu note les assets utilisés (nom, source, licence) et la version de la
-  bibliothèque, dans la demande, dans les mesures Prometheus (`studio_assets_utilises_total`) et
-  dans le marquage du module 4 (`asset.extras.assets` du GLB, champ texte `Assets` du PNG).
+- **storage and distribution**: an **asset image** (`FROM scratch`, nothing but files), mounted
+  **read-only** on `/assets` by the Kubernetes **`image` volume** (beta enabled by default since
+  Kubernetes 1.35, stable in 1.36), in the MCP server and in the workers. Each node keeps it in its
+  cache: a worker created by KEDA finds it as soon as it starts, with no download and no network
+  rule to open;
+- **format**: normalized `.blend` files (a root Empty placed on the floor, armatures applied, textures
+  next to them, relative paths), marked as Blender assets (Asset Browser catalogs); 2k HDRIs;
+  thumbnails rendered by Blender; a `catalog.json` (names in three languages, dimensions in meters,
+  source, authors, license);
+- **discovery**: an MCP tool `list_assets(search, kind)` that returns the name to write in the code,
+  the dimensions, a Markdown thumbnail, a call example and the source;
+- **use**: two functions placed in the namespace where the model's code runs,
+  `load_asset("name", position=(x, y, z), rotation_z=…)` and `environment("name")`: **a name, never
+  a path**; an unknown name raises an error that lists the valid names (the model corrects itself);
+  the object is **appended** (not linked): the model can move it and recolor it, the original file
+  stays untouched (read-only mount);
+- **versioning**: the library version is the image tag (`studio3d-assets:1`, `:2`…; in production,
+  the `@sha256:…` digest) written in the manifest. Adding an asset builds a new image of a few tens
+  of MB, **without rebuilding the Blender image**; a pod keeps the version mounted when it started;
+- **trace**: each render records the assets used (name, source, license) and the library version,
+  in the request, in the Prometheus metrics (`studio_assets_used_total`) and in the module 4
+  marking (`asset.extras.assets` of the GLB, `Assets` text field of the PNG).
 
-## Pourquoi ce mécanisme
+## Why this mechanism
 
 | Option | Verdict |
 |---|---|
-| Assets dans l'image du studio | simple, mais chaque ajout reconstruit et redistribue plusieurs Go, et lie le rythme de l'équipe graphique à celui du code |
-| Volume partagé `ReadOnlyMany` (NFS, CephFS, Azure Files…) | bon choix pour une très grosse bibliothèque qui change souvent, mais demande un stockage réseau (absent d'un cluster k3d) et n'a pas de version : un fichier remplacé change sous les pieds d'un rendu en cours |
-| Stockage objet (MinIO, S3) et cache local | un service et des identifiants de plus, une règle réseau à ouvrir (que le code du modèle pourrait emprunter), un téléchargement à chaque naissance de worker |
-| **Image d'assets montée par le volume `image`** | **retenu** : naissance instantanée des workers (cache du nœud), lecture seule garantie par le moteur de conteneurs, version par étiquette ou empreinte, aucune règle réseau, distribution par le registre comme n'importe quelle image |
+| Assets in the studio image | simple, but each addition rebuilds and redistributes several GB, and ties the design team's pace to the code's |
+| Shared `ReadOnlyMany` volume (NFS, CephFS, Azure Files…) | a good choice for a very large library that changes often, but it requires network storage (absent from a k3d cluster) and has no version: a replaced file changes under the feet of a render in progress |
+| Object storage (MinIO, S3) and a local cache | one more service and credentials, a network rule to open (which the model's code could borrow), a download every time a worker starts |
+| **Asset image mounted by the `image` volume** | **chosen**: workers start instantly (node cache), read-only guaranteed by the container runtime, version by tag or digest, no network rule, distributed by the registry like any other image |
 
-Plan B si votre cluster n'a pas le volume `image` (Kubernetes antérieur à 1.33, moteur de
-conteneurs sans prise en charge) : la même image, copiée au démarrage par un conteneur
-d'initialisation dans un `emptyDir`, monté `readOnly: true` dans le conteneur principal.
+Plan B if your cluster does not have the `image` volume (Kubernetes before 1.33, container runtime
+without support): the same image, copied at startup by an init container into an `emptyDir`,
+mounted `readOnly: true` in the main container.
 
-## Contenu
+## Contents
 
-| Fichier | Rôle |
+| File | Role |
 |---|---|
-| `assets/selection.json` | La sélection : nom dans le studio → identifiant Poly Haven, noms et descriptions en trois langues, étiquettes, catalogue ; `version` ; `proposes` : assets prêts à ajouter (la plante) |
-| `assets/importer.mjs` | Télécharge par l'API publique de Poly Haven, vérifie les MD5, prépare dans Blender, assemble la bibliothèque, construit `studio3d-assets:<version>`, l'importe dans les nœuds k3d ; `--ajouter <id Poly Haven> --nom <nom>` (version suivante), `--deployer` (inscrit la version dans `k8s-echelle.yaml` et dans les deux déploiements). Node 20 ou plus, sans dépendance |
-| `assets/preparer.py` | Exécuté par le Blender de l'image du studio : normalisation de l'objet, asset Blender, dimensions, vignette 256 × 256 |
-| `assets/k3d.mjs` | Outillage k3d utilisé par `importer.mjs` (import d'images dans les nœuds, `kubectl`) |
-| `assets/Dockerfile` | L'image d'assets : `FROM scratch`, `COPY bibliotheque/ /` |
-| `studio/rendu.py` | `charger_asset`, `environnement`, trace des assets ; caméra automatique cadrée sur les sommets réels ; GLB à textures WEBP |
-| `studio/api.py` | Outil `lister_assets`, route publique `/a/<nom>.jpg` (vignettes, sans signature), une phrase de plus dans la description de `soumettre_rendu`, assets renvoyés par `etat_rendu` |
-| `studio/commun.py`, `studio/travailleur.py`, `studio/metriques.py`, `studio/marquage.py` | Catalogue lu dans `/assets` ; trace rangée avec la demande, comptée et ajoutée au marquage |
-| `studio/Dockerfile` | Image `studio3d:4` (Blender 5.2, serveur MCP, worker) |
-| `k8s-echelle.yaml` | Manifeste du module 4, plus : volume `image` `studio3d-assets:1` monté `readOnly: true` sur `/assets` dans `studio-api` et `studio-travailleur`, chemin `/a/` dans l'`Ingress`, image `studio3d:4` |
-| `essai/bureau-sans-bibliotheque.py` | Le code réellement écrit par le modèle, sans bibliothèque, pour la scène de bureau de la vidéo (l'image « avant ») |
-| `lire_marquage.py` | Lecture du marquage d'un PNG ou d'un GLB (module 4), qui montre désormais la trace des assets |
-| `open-webui/` | En-tête d'identité de la connexion MCP et prompt système du modèle « Studio 3D » |
-| `.env.example` | Variables à renseigner (jeton, mot de passe Redis), sans valeur |
+| `assets/selection.json` | The selection: name in the studio → Poly Haven id, names and descriptions in three languages, tags, catalog; `version`; `proposed`: assets ready to add (the plant) |
+| `assets/importer.mjs` | Downloads through the public Poly Haven API, checks the MD5 fingerprints, prepares in Blender, assembles the library, builds `studio3d-assets:<version>`, imports it into the k3d nodes; `--add <Poly Haven id> --name <name>` (next version), `--deploy` (writes the version into `k8s-scale.yaml` and into both deployments). Node 20 or later, no dependency |
+| `assets/prepare.py` | Run by the Blender of the studio image: normalization of the object, Blender asset, dimensions, 256 × 256 thumbnail |
+| `assets/k3d.mjs` | k3d tooling used by `importer.mjs` (nodes, images in the nodes, `kubectl`) |
+| `assets/Dockerfile` | The asset image: `FROM scratch`, `COPY library/ /` |
+| `studio/render.py` | `load_asset`, `environment`, asset trace; automatic camera framed on the actual vertices; GLB with WEBP textures |
+| `studio/api.py` | `list_assets` tool, public route `/a/<name>.jpg` (thumbnails, unsigned), one more sentence in the description of `submit_render`, assets returned by `render_status` |
+| `studio/common.py`, `studio/worker.py`, `studio/metrics.py`, `studio/marking.py` | Catalog read in `/assets`; trace stored with the request, counted and added to the marking |
+| `studio/Dockerfile` | Image `studio3d:4` (Blender 5.2, MCP server, worker) |
+| `k8s-scale.yaml` | Module 4 manifest, plus: `image` volume `studio3d-assets:1` mounted `readOnly: true` on `/assets` in `studio-api` and `studio-worker`, `/a/` path in the `Ingress`, image `studio3d:4` |
+| `test/office-without-library.py` | The code actually written by the model, without a library, for the office scene of the video (the “before” image) |
+| `read_marking.py` | Reads the marking of a PNG or a GLB (module 4), which now shows the asset trace |
+| `open-webui/` | Identity header of the MCP connection and system prompt of the “Studio 3D” model |
+| `.env.example` | Variables to fill in (token, Redis password), without any value |
 
-## Prérequis
+## Prerequisites
 
-- Le studio à l'échelle du **module 4** (dépôt
-  [`clic-par-clic-studio3d-04-marquage`](https://github.com/guilhem-/clic-par-clic-studio3d-04-marquage)) :
-  Redis, KEDA 2.21, secret `studio`, connexion et modèle « Studio 3D » dans Open WebUI.
-- Un cluster dont le moteur de conteneurs monte les volumes `image` : Kubernetes 1.35 ou plus
-  (k3s 1.35.5, containerd 2.2.3 dans la vidéo, cluster **k3d** `tterm`, Traefik publié sur le
-  port 8080 de la machine).
-- Docker et Node 20 ou plus sur le poste ; un accès à `api.polyhaven.com` et `dl.polyhaven.org`
-  pour le premier téléchargement (environ 65 Mo).
+- The scaled studio of **module 4** (repository
+  [`clic-par-clic-studio3d-04-marquage`](https://github.com/guilhem-/clic-par-clic-studio3d-04-marquage)):
+  Redis, KEDA 2.21, `studio` secret, “Studio 3D” connection and model in Open WebUI.
+- A cluster whose container runtime mounts `image` volumes: Kubernetes 1.35 or later
+  (k3s 1.35.5, containerd 2.2.3 in the video, **k3d** cluster `tterm`, Traefik published on port
+  8080 of the machine).
+- Docker and Node 20 or later on the workstation; access to `api.polyhaven.com` and
+  `dl.polyhaven.org` for the first download (about 65 MB).
 
-## Installation pas à pas
+## Step-by-step installation
 
-1. **Image du studio** (Blender, serveur, worker) :
+1. **Studio image** (Blender, server, worker):
 
    ```bash
    docker build -t studio3d:4 studio
-   k3d image import studio3d:4 -c tterm      # k3d ; sinon, poussez l'image dans votre registre
+   k3d image import studio3d:4 -c tterm      # k3d; otherwise, push the image to your registry
    ```
 
-2. **Bibliothèque, version 1** : téléchargement, préparation dans Blender (environ une minute et
-   demie la première fois), image d'assets, import dans les nœuds :
+2. **Library, version 1**: download, preparation in Blender (about a minute and a half the first
+   time), asset image, import into the nodes:
 
    ```bash
-   node assets/importer.mjs                   # K3D_CLUSTER=autre-cluster pour un autre cluster k3d
+   node assets/importer.mjs                   # K3D_CLUSTER=other-cluster for another k3d cluster
    ```
 
-   Les fichiers téléchargés (`assets/telechargements/`), préparés (`assets/preparees/`) et la
-   bibliothèque assemblée (`assets/bibliotheque/`) restent hors git.
+   The downloaded files (`assets/downloads/`), the prepared ones (`assets/prepared/`) and the
+   assembled library (`assets/library/`) stay out of git.
 
-3. **Studio** :
+3. **Studio**:
 
    ```bash
-   kubectl apply -f k8s-echelle.yaml
+   kubectl apply -f k8s-scale.yaml
    kubectl -n studio3d rollout status deployment/studio-api
    ```
 
-   Vérification : `http://studio.localhost:8080/a/chaise_bois.jpg` affiche la vignette de la chaise.
+   Check: `http://studio.localhost:8080/a/wooden_chair.jpg` shows the thumbnail of the chair.
 
-4. **Open WebUI** : dans le modèle « Studio 3D », remplacez le prompt système par celui de
-   `open-webui/consignes-modele.txt` (une phrase sur la bibliothèque ; la réponse d'état recopie
-   l'image et l'artefact 3D). Rafraîchissez la connexion MCP pour que l'outil `lister_assets` soit lu.
+4. **Open WebUI**: in the “Studio 3D” model, replace the system prompt with the one in
+   `open-webui/system-prompt.txt` (one sentence about the library; the status answer copies the
+   image and the 3D artifact). Refresh the MCP connection so that the `list_assets` tool is read.
 
-5. **Essai** : « Quels meubles et quels éclairages sont disponibles ? », puis « Crée une scène de
-   bureau avec la bibliothèque : le bureau métallique, la chaise en bois devant, la lampe de bureau
-   posée dessus, sous l'éclairage studio doux. », puis « Où en est mon rendu ? ».
+5. **Try it**: “Which furniture and which lighting are available?”, then “Create an office scene
+   with the library: the metal desk, the wooden chair in front of it, the desk lamp standing on it,
+   under the soft studio lighting.”, then “How is my render doing?”.
 
-6. **Ajouter un asset** (version 2, sans toucher à l'image de Blender) :
+6. **Add an asset** (version 2, without touching the Blender image):
 
    ```bash
-   node assets/importer.mjs --ajouter potted_plant_01 --nom plante_verte --deployer
+   node assets/importer.mjs --add potted_plant_01 --name potted_plant --deploy
    ```
 
-   Le script ajoute la plante à `selection.json`, construit `studio3d-assets:2`, l'importe, puis
-   inscrit la nouvelle référence dans `k8s-echelle.yaml` et dans les deux déploiements : les deux
-   copies du serveur se relaient sans interruption ; les workers en cours finissent leur rendu sur
-   la version 1, les suivants naissent avec la version 2. Retour arrière : remettre
-   `reference: studio3d-assets:1` et `kubectl apply -f k8s-echelle.yaml`.
+   The script adds the plant to `selection.json`, builds `studio3d-assets:2`, imports it, then
+   writes the new reference into `k8s-scale.yaml` and into both deployments: the two server copies
+   take turns with no interruption; the running workers finish their render on version 1, the next
+   ones start with version 2. Going back: set `reference: studio3d-assets:1` again and
+   `kubectl apply -f k8s-scale.yaml`.
 
-## Points à connaître
+## Good to know
 
-- **Ajouté, pas lié** (`bpy.data.libraries.load(…, link=False, assets_only=True)`) : un objet lié
-  serait en lecture seule dans la scène (ni déplacement, ni couleur sans « library override »).
-  La copie vit dans la scène du rendu, jetée ensuite.
-- **Lecture seule, pas secret** : le code du modèle reste du Python arbitraire ; la bibliothèque ne
-  contient que des fichiers libres de droits. Le montage en lecture seule garantit qu'aucun rendu ne
-  peut abîmer ou empoisonner la bibliothèque des autres. Les fonctions « par nom » servent la
-  fiabilité (pas de chemin inventé, erreurs claires), pas la sécurité.
-- **Orientation** : les objets ont leur face avant tournée vers −y (convention de Poly Haven) ; la
-  description de `lister_assets` le dit au modèle (`rotation_z=math.pi` pour la tourner vers +y).
-- **Vignettes publiques** (`/a/`) : sans signature, parce qu'elles ne montrent que des assets
-  libres de droits ; le nom est cherché dans le catalogue, jamais concaténé à un chemin.
-- **Type de source du marquage** : `trainedAlgorithmicMedia` est conservé, même avec un HDRI
-  photographique en fond (la scène reste composée par un modèle entraîné).
+- **Appended, not linked** (`bpy.data.libraries.load(…, link=False, assets_only=True)`): a linked
+  object would be read-only in the scene (no moving, no color without a “library override”).
+  The copy lives in the render's scene, thrown away afterwards.
+- **Read-only, not secret**: the model's code is still arbitrary Python; the library only contains
+  royalty-free files. The read-only mount guarantees that no render can damage or poison the
+  library of the others. The “by name” functions serve reliability (no invented path, clear
+  errors), not security.
+- **Orientation**: the objects have their front facing −y (Poly Haven's convention); the
+  description of `list_assets` tells the model (`rotation_z=math.pi` to face +y).
+- **Public thumbnails** (`/a/`): unsigned, because they only show royalty-free assets; the name is
+  looked up in the catalog, never concatenated into a path.
+- **Source type of the marking**: `trainedAlgorithmicMedia` is kept, even with a photographic HDRI
+  as background (the scene is still composed by a trained model).
 
-## Crédits et licences
+## Credits and licenses
 
-- **Assets : [Poly Haven](https://polyhaven.com)**, licence **CC0** (domaine public) :
+- **Assets: [Poly Haven](https://polyhaven.com)**, **CC0** license (public domain):
   *Painted Wooden Chair 01* (Kuutti Siitonen), *Modern Arm Chair 01* (Vibrant Nordic),
   *Metal Office Desk* (Ulan Cabanilla), *Desk Lamp Arm 01* (Yann Kervran, Kuutti Siitonen),
-  *Ceramic Vase 01* (James Ray Cock), *Potted Plant 01* (Rico Cilliers), HDRI *Studio Small 08* et
-  *Photo Studio Loft Hall* (Sergej Majboroda), *Wooden Lounge* (Greg Zaal). Téléchargés par l'API
-  publique de Poly Haven (un `User-Agent` explicite à chaque requête). Les vignettes sont rendues
-  par Blender : les rendus d'exemple du site ne sont pas réutilisés. Ce dépôt ne contient aucun
-  fichier d'asset : `importer.mjs` les télécharge.
-- Code : MIT, voir [`LICENSE`](LICENSE). Blender est distribué sous licence GPL par la Blender
-  Foundation ; Redis, KEDA et Poly Haven sont des projets indépendants. Cette série est
-  indépendante des éditeurs des logiciels présentés.
+  *Ceramic Vase 01* (James Ray Cock), *Potted Plant 01* (Rico Cilliers), HDRIs *Studio Small 08* and
+  *Photo Studio Loft Hall* (Sergej Majboroda), *Wooden Lounge* (Greg Zaal). Downloaded through the
+  public Poly Haven API (an explicit `User-Agent` on every request). The thumbnails are rendered
+  by Blender: the site's sample renders are not reused. This repository contains no asset file:
+  `importer.mjs` downloads them.
+- Code: MIT, see [`LICENSE`](LICENSE). Blender is distributed under the GPL license by the Blender
+  Foundation; Redis, KEDA and Poly Haven are independent projects. This series is independent of
+  the publishers of the software shown.
 
-## Suite de la série
+## Next in the series
 
-- Module précédent : **Marquer les rendus générés par IA** — dépôt
+- Previous module: **Marking AI-generated renders** — repository
   [`clic-par-clic-studio3d-04-marquage`](https://github.com/guilhem-/clic-par-clic-studio3d-04-marquage).
-- Module suivant : **Télécharger la scène Blender depuis le stockage d'une autre équipe** — dépôt
+- Next module: **Downloading the Blender scene from another team's storage** — repository
   [`clic-par-clic-studio3d-06-stockage-s3`](https://github.com/guilhem-/clic-par-clic-studio3d-06-stockage-s3).

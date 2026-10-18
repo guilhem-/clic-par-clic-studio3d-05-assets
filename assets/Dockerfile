@@ -1,8 +1,8 @@
-# Bibliothèque d'assets du studio 3D (module s3d05) : aucun système, aucun programme, seulement des fichiers.
-# Montée en lecture seule sur /assets par le volume « image » de Kubernetes (serveur MCP et workers).
-#   node importer.mjs   (télécharge, prépare, puis : docker build -t studio3d-assets:<version> .)
+# Asset library of the 3D studio (module s3d05): no system, no program, only files.
+# Mounted read-only on /assets by the Kubernetes "image" volume (MCP server and workers).
+#   node importer.mjs   (downloads, prepares, then: docker build -t studio3d-assets:<version> .)
 FROM scratch
-COPY bibliotheque/ /
+COPY library/ /
 LABEL org.opencontainers.image.title="studio3d-assets" \
-      org.opencontainers.image.description="Bibliothèque d'assets du studio 3D : objets Blender, HDRI, vignettes, catalogue" \
+      org.opencontainers.image.description="Asset library of the 3D studio: Blender objects, HDRIs, thumbnails, catalog" \
       org.opencontainers.image.licenses="CC0-1.0"
